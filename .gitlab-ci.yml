@@ -1,15 +1,33 @@
+before_script:
+  - 'echo "{\"auths\": {\"$CI_REGISTRY\": {\"username\": \"$CI_REGISTRY_USER\", \"password\": \"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json'
+
 build:
   stage: build
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   script:
-    - echo $KANIKOCONFIG > /kaniko/.docker/config.json
-    - /kaniko/executor --context "$CI_PROJECT_DIR" --dockerfile "$CI_PROJECT_DIR/Dockerfile"
-      --destination "$HARBOR_ADDRESS/blackcethas-network/$CI_PROJECT_NAME:branch-$CI_COMMIT_BRANCH"
-      --destination "$HARBOR_ADDRESS/blackcethas-network/$CI_PROJECT_NAME:$CI_COMMIT_SHA"
+    - /kaniko/executor --context "$CI_PROJECT_DIR" --dockerfile "$CI_PROJECT_DIR/Dockerfile" --snapshotMode=time
+      --destination "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
       --label org.opencontainers.image.source="$CI_PROJECT_URL"
       --label org.opencontainers.image.title="$CI_PROJECT_TITLE"
       --label org.opencontainers.image.created="`date -Iseconds`"
       --label org.opencontainers.image.authors="$GITLAB_USER_NAME <$GITLAB_USER_EMAIL>"
       --label org.opencontainers.image.revision="$CI_COMMIT_SHA"
+  except:
+    - master
+build_master:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - /kaniko/executor --context "$CI_PROJECT_DIR" --dockerfile "$CI_PROJECT_DIR/Dockerfile" --snapshotMode=time
+      --destination "$CI_REGISTRY_IMAGE:latest"
+      --label org.opencontainers.image.source="$CI_PROJECT_URL"
+      --label org.opencontainers.image.title="$CI_PROJECT_TITLE"
+      --label org.opencontainers.image.created="`date -Iseconds`"
+      --label org.opencontainers.image.authors="$GITLAB_USER_NAME <$GITLAB_USER_EMAIL>"
+      --label org.opencontainers.image.revision="$CI_COMMIT_SHA"
+  only:
+    - master
