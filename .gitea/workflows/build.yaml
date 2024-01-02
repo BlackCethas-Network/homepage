@@ -1,0 +1,20 @@
+name: Build
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: |
+            git.bcetha.de/${{ gitea.repository }}:latest
+            git.bcetha.de/${{ gitea.repository }}:${{ gitea.sha }}
+            git.bcetha.de/${{ gitea.repository }}:${{ gitea.ref_name }}
+          labels: |
+            org.opencontainers.image.source=git.bcetha.de/${{ gitea.repository }}
+            org.opencontainers.image.revision=${{ gitea.sha }}
