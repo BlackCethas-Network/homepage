@@ -4,10 +4,6 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/catthehacker/ubuntu:act-latest
-    env:
-      DOCKER_HOST: 'tcp://localhost:2376'
     steps:
       - name: Build and push image
         uses: docker/build-push-action@v5
