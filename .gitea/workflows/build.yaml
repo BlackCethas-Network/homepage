@@ -7,7 +7,7 @@ jobs:
     container:
       image: ghcr.io/catthehacker/ubuntu:act-latest
     env:
-      DOCKER_HOST: unix:///run/user/1000/docker.sock
+      DOCKER_HOST: 'tcp://localhost:2376'
     steps:
       - name: Build and push image
         uses: docker/build-push-action@v5
